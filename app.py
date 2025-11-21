@@ -243,8 +243,8 @@ st.markdown("""
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2.5rem; /* Increased gap for extra space between items */
-    margin: 3rem 0;
+    gap: 1.5rem; 
+    margin: 1.5rem 0; 
 }
 
 .stat-card {
@@ -280,9 +280,9 @@ st.markdown("""
     .disease-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    row-gap: 2rem; /* Space between rows */
-    column-gap: 2rem; /* Space between columns */
-    margin: 2rem 0;
+    row-gap: 1.5rem; 
+    column-gap: 1.5rem; 
+    margin: 4rem 0 1.5rem 0; 
 }
 
     
