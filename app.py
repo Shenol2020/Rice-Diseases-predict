@@ -278,12 +278,12 @@ st.markdown("""
 
     /* Disease Cards */
     .disease-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    row-gap: 1.5rem; 
-    column-gap: 1.5rem; 
-    margin: 4rem 0 1.5rem 0; 
-}
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        row-gap: 2rem;
+        column-gap: 1.5rem;
+        margin: 4rem 0 2rem 0;
+    }
 
     
     .disease-card {
@@ -313,6 +313,8 @@ st.markdown("""
         font-size: 0.9rem;
         color: #FBD784;
         font-weight: 600;
+        display: block;
+        margin-bottom: 0.4rem;
     }
     
     /* Progress Bar */
@@ -322,7 +324,8 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
         overflow: hidden;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.25rem;
     }
     
     .progress-fill {
@@ -371,6 +374,18 @@ st.markdown("""
         border-radius: 12px;
         color: #FFFFFF;
     }
+
+    /* Weather Card */
+    .weather-card {
+        max-width: 900px;
+        margin: 2rem auto 0 auto;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
     
     /* Responsive */
     @media (max-width: 768px) {
@@ -407,7 +422,7 @@ def load_model_and_classes():
 def preprocess_image(image, target_size=(224, 224)):
     """Preprocess uploaded image for prediction"""
     img_array = np.array(image)
-     img_resized = cv2.resize(img_array, target_size)
+    img_resized = cv2.resize(img_array, target_size)
     img_normalized = img_resized / 255.0
     img_batch = np.expand_dims(img_normalized, axis=0)
     return img_batch
@@ -419,11 +434,11 @@ def predict_disease(model, image, class_names):
     predicted_class_idx = np.argmax(predictions[0])
     confidence = predictions[0][predicted_class_idx] * 100
     
-     #Get all predictions sorted
+    #Get all predictions sorted
     all_predictions = [(class_names[i], predictions[0][i] * 100) for i in range(len(class_names))]
     all_predictions.sort(key=lambda x: x[1], reverse=True)
     
-     return class_names[predicted_class_idx], confidence, all_predictions
+    return class_names[predicted_class_idx], confidence, all_predictions
 
 #main app
 def main():
@@ -477,7 +492,7 @@ def main():
     st.markdown('<p class="section-subtitle">Upload a clear image of a rice leaf to get instant disease detection</p>', unsafe_allow_html=True)
     
     #Load model
-     model, class_names = load_model_and_classes()
+    model, class_names = load_model_and_classes()
     
     if model is None:
         st.error("⚠️ Model not found. Please ensure 'rice_disease_classifier_final.keras' is in the current directory.")
@@ -489,7 +504,7 @@ def main():
     uploaded_file = st.file_uploader(
         "Choose a rice leaf image",
         type=['jpg', 'jpeg', 'png'],
-         help="Upload a clear, well-lit image of a rice leaf"
+        help="Upload a clear, well-lit image of a rice leaf"
     )
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -513,7 +528,7 @@ def main():
             # Main Prediction
             st.markdown(f"""
                 <div class="prediction-card">
-                     <div class="prediction-label">Detected Disease</div>
+                    <div class="prediction-label">Detected Disease</div>
                     <div class="prediction-disease">{predicted_class}</div>
                     <span class="confidence-badge">{confidence:.1f}% Confidence</span>
                 </div>
@@ -529,23 +544,26 @@ def main():
         #All Predictions
         st.markdown("---")
         st.markdown("### 📊 Detailed Analysis")
-        
-        st.markdown('<div class="disease-grid">', unsafe_allow_html=True)
+
+        # Build the full grid HTML in one block so CSS grid spacing works correctly.
+        # Lines must not start with 4+ spaces, otherwise Markdown treats them as code.
+        grid_html = '<div class="disease-grid">'
         for disease, prob in all_predictions:
-            st.markdown(f"""
-                <div class="disease-card">
-                    <div class="disease-name">{disease}</div>
-                    <div class="disease-prob">{prob:.1f}%</div>
-                    <div class="custom-progress">
-                        <div class="progress-fill" style="width: {prob}%"></div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            grid_html += (
+                f'<div class="disease-card">'
+                f'<div class="disease-name">{disease}</div>'
+                f'<div class="disease-prob">{prob:.1f}%</div>'
+                f'<div class="custom-progress">'
+                f'<div class="progress-fill" style="width: {prob}%"></div>'
+                f'</div>'
+                f'</div>'
+            )
+        grid_html += "</div>"
+        st.markdown(grid_html, unsafe_allow_html=True)
         
         #Recommendations
         st.markdown("---")
-         st.markdown("### 💡 Recommendations")
+        st.markdown("### 💡 Recommendations")
         
         if predicted_class == "Healthy Rice Leaf":
             st.success("""
@@ -577,7 +595,7 @@ def main():
     
     col1, col2 = st.columns(2, gap="large")
     
-     diseases_info = {
+    diseases_info = {
         "Bacterial Blight": {
             "description": "Caused by Xanthomonas oryzae. Symptoms include water-soaked lesions on leaves.",
             "url": "https://en.wikipedia.org/wiki/Xanthomonas_oryzae_pv._oryzae"
@@ -590,7 +608,7 @@ def main():
             "description": "Fungal infection producing black powdery spores on leaves.",
             "url": "https://en.wikipedia.org/wiki/Eballistra_oryzae"
         },
-          "Leaf Blast": {
+        "Leaf Blast": {
             "description": "Most destructive rice disease, causing diamond-shaped lesions.",
             "url": "https://en.wikipedia.org/wiki/Magnaporthe_oryzae"
         },
@@ -599,7 +617,7 @@ def main():
             "url": "https://en.wikipedia.org/wiki/Monographella_albescens"
         },
         "Sheath Blight": {
-              "description": "Fungal disease affecting leaf sheaths near water line.",
+            "description": "Fungal disease affecting leaf sheaths near water line.",
             "url": "https://en.wikipedia.org/wiki/Sheath_blight"
         }
     }
@@ -610,7 +628,7 @@ def main():
             url_attr = f'href="{data["url"]}" target="_blank" rel="noopener noreferrer"' if data.get("url") else ""
             st.markdown(f"""
                 <div class="stat-card" style="text-align: left;">
-                      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">{icon}</div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">{icon}</div>
                     <a {url_attr} class="disease-link" style="text-decoration:none;">
                         <h5 style="margin:0; color:#FBD784;">{name}</h5>
                     </a>
@@ -624,20 +642,22 @@ def main():
     st.markdown('<h2 style="text-align:center;">🌤 Local Weather</h2>', unsafe_allow_html=True)
     import streamlit.components.v1 as components
     weather_widget = """
-    <div id="weatherapi-weather-widget-2"></div>
-    <script type="text/javascript"
-        src="https://www.weatherapi.com/weather/widget.ashx?loc=2850955&wid=2&tu=2&div=weatherapi-weather-widget-2"></script>
-    <noscript>
-        <a href="https://www.weatherapi.com/weather/q/polonnaruwa-2850955"
-        alt="Hour by hour Polonnaruwa weather">
-        10 day hour by hour Polonnaruwa weather
-        </a>
-    </noscript>
+    <div class="weather-card">
+        <div id="weatherapi-weather-widget-2"></div>
+        <script type="text/javascript"
+            src="https://www.weatherapi.com/weather/widget.ashx?loc=2850955&wid=2&tu=2&div=weatherapi-weather-widget-2"></script>
+        <noscript>
+            <a href="https://www.weatherapi.com/weather/q/polonnaruwa-2850955"
+            alt="Hour by hour Polonnaruwa weather">
+            10 day hour by hour Polonnaruwa weather
+            </a>
+        </noscript>
+    </div>
     """
     components.html(weather_widget, height=400, scrolling=False)
 
     # Footer
-      st.markdown("---")
+    st.markdown("---")
     st.markdown("""
         <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
               <p style="font-size: 0.9rem;">🌾 Rice Leaf Disease Classifier | Powered by Deep Learning & TensorFlow</p>
